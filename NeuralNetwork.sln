@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Program", "Program/Program.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetworks", "NeuralNetworks\NeuralNetworks.csproj", "{EDEA67EF-4924-4AAC-B686-252177F55AB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MNIST", "MNIST\MNIST.csproj", "{70D9E016-F9DD-4000-8611-015847B52F98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EDEA67EF-4924-4AAC-B686-252177F55AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDEA67EF-4924-4AAC-B686-252177F55AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDEA67EF-4924-4AAC-B686-252177F55AB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70D9E016-F9DD-4000-8611-015847B52F98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70D9E016-F9DD-4000-8611-015847B52F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70D9E016-F9DD-4000-8611-015847B52F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70D9E016-F9DD-4000-8611-015847B52F98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

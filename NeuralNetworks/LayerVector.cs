@@ -8,59 +8,56 @@ namespace NeuralNetworks
 {
     public class LayerVector : IEnumerable<float>
     {
-        public Vector<float>[] Internal { get; }
+        public float[] Internal { get; }
         public int Length { get; }
         
         public LayerVector(int n)
         {
-            Internal = new Vector<float>[(n + Vector<float>.Count - 1) / Vector<float>.Count];
+            Internal = new float[n];
             Length = n;
         }
 
         public LayerVector(float[] layer)
-            : this(layer.Length)
         {
-            for (var i = 0; i < Internal.Length; i++)
-            {
-                if (Vector<float>.Count <= layer.Length - i)
-                {
-                    Internal[i] = new Vector<float>(layer, i * Vector<float>.Count);
-                }
-                else
-                {
-                    var arr = new float[Vector<float>.Count];
-                    Array.Copy(layer, i * Vector<float>.Count, arr, 0, layer.Length - i);
-                    Internal[i] = new Vector<float>(arr);
-                }
-            }
+            Internal = layer;
+            Length = layer.Length;
         }
 
-        public float this[int index] => Internal[index / Vector<float>.Count][index % Vector<float>.Count];
-
-        private IEnumerable<float> Enumerate()
-        {
-            int n = 0;
-            foreach (var vector in Internal)
-            {
-                if (n++ >= Length)
-                {
-                    yield break;
-                }
-                for (int i = 0; i < Vector<float>.Count; i++)
-                {
-                    yield return vector[i];
-                }
-            }
-        }
+        public float this[int index] => Internal[index];
         
         public IEnumerator<float> GetEnumerator()
         {
-            return Enumerate().GetEnumerator();
+            return (Internal as IEnumerable<float>).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public void GetVector(int index, out Vector<float> v)
+        {
+            if (Length - index < Vector<float>.Count)
+            {
+                var dest = new float[Vector<float>.Count];
+                for (int i = index, j = 0; i < Length; i++, j++)
+                {
+                    dest[j] = Internal[i];
+                }
+                v = new Vector<float>(dest);
+            }
+            else
+            {
+                v = new Vector<float>(Internal, index);
+            }
+        }
+
+        public void SetVector(int index, ref Vector<float> v)
+        {
+            for (int i = index, j = 0; i < index + Vector<float>.Count && i < Length; i++, j++)
+            {
+                Internal[i] = v[j];
+            }
         }
     }
 }

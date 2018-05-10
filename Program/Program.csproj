@@ -3,4 +3,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MNIST\MNIST.csproj" />
+    <ProjectReference Include="..\NeuralNetworks\NeuralNetworks.csproj" />
+  </ItemGroup>
 </Project>

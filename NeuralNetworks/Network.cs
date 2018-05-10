@@ -24,15 +24,15 @@ namespace NeuralNetworks
             this.r = r ?? new Random();
             Layers = sizes.Length;
             Sizes = sizes;
-            Biases = sizes.Skip(1).Select(y => r.CreateNormal(y)).ToArray();
+            Biases = sizes.Skip(1).Select(y => this.r.CreateNormal(y)).ToArray();
             Weights = sizes.Take(Layers - 1).Zip(sizes.Skip(1), (x, y) => (layerFromSize: x, layerToSize: y))
-                .Select(pair => r.CreateNormal(pair.layerFromSize, pair.layerToSize)).ToArray();
+                .Select(pair => this.r.CreateNormal(pair.layerFromSize, pair.layerToSize)).ToArray();
             Activation = VectorUtilities.Sigmoid;
             ActivationPrime = VectorUtilities.SigmoidPrime;
         }
 
         public void StochasticGradientDescent((float[] x, float[] y)[] trainingData, int epochs, int miniBatchSize, 
-            float eta, (float[] x, float[] y)[] testData)
+            float eta, (float[] x, float[] y)[] testData = null)
         {
             var batches = (trainingData.Length + miniBatchSize - 1) / miniBatchSize;
             for (var j = 0; j < epochs; j++)
@@ -44,7 +44,7 @@ namespace NeuralNetworks
                     UpdateMiniBatch(miniBatch, eta);
                 }
                 Console.WriteLine(testData != null
-                    ? $"Epoch {j}: {Evaluate(testData)} / {trainingData.Length}"
+                    ? $"Epoch {j}: {Evaluate(testData)} / {testData.Length}"
                     : $"Epoch {j} complete");
             }
         }
@@ -96,7 +96,7 @@ namespace NeuralNetworks
 
             for (var l = 2; l < Layers; l++)
             {
-                var z = zs[zs.Count - 1];
+                var z = zs[zs.Count - l];
                 var sp = z.Apply(ActivationPrime);
                 // Below: Multiply transpose of the weight matrix with the delta vector as a matrix, 
                 // which returns a vector (matrix Mx1), and store the hadamard (elementwise) product

@@ -21,14 +21,14 @@ namespace NeuralNetworks
 
         public static LayerMatrix Transpose(this LayerMatrix m)
         {   
-            var floats = Enumerable.Range(0, m.Height)
-                .Select(i => new float[m.Width]).ToArray();
+            var floats = Enumerable.Range(0, m.Width)
+                .Select(i => new float[m.Height]).ToArray();
 
             for (var i = 0; i < m.Height; i++)
             {
                 for (var j = 0; j < m.Width; j++)
                 {
-                    floats[i][j] = m.Rows[j][i];
+                    floats[j][i] = m.Rows[i][j];
                 }
             }
             
@@ -41,14 +41,14 @@ namespace NeuralNetworks
                 throw new ArgumentException();
             
             var floats = Enumerable.Range(0, m.Height)
-                .Select(i => new float[m.Width]).ToArray();
+                .Select(i => new float[other.Width]).ToArray();
             
             // Transpose the other matrix to make multiplication faster, since we implemented rows as vectors.
             var otherTransposed = other.Transpose();
 
             for (var i = 0; i < m.Height; i++)
             {
-                for (var j = 0; j < m.Width; j++)
+                for (var j = 0; j < other.Width; j++)
                 {
                     floats[i][j] = m.Rows[i].Dot(otherTransposed.Rows[j]);
                 }
@@ -140,9 +140,11 @@ namespace NeuralNetworks
         public static LayerVector Apply(this LayerVector value, Func<Vector<float>, Vector<float>> f)
         {
             var vector = new LayerVector(value.Length);
-            for (var i = 0; i < vector.Internal.Length; i++)
+            for (var i = 0; i < value.Length; i += Vector<float>.Count)
             {
-                vector.Internal[i] = f(value.Internal[i]);
+                value.GetVector(i, out var inVector);
+                var outVector = f(inVector);
+                vector.SetVector(i, ref outVector);
             }
             return vector;
         }
@@ -154,9 +156,12 @@ namespace NeuralNetworks
                 throw new ArgumentException();
             
             var vector = new LayerVector(value.Length);
-            for (var i = 0; i < vector.Internal.Length; i++)
+            for (var i = 0; i < vector.Length; i += Vector<float>.Count)
             {
-                vector.Internal[i] = f(value.Internal[i], other.Internal[i]);
+                value.GetVector(i, out var inValueVector);
+                other.GetVector(i, out var inOtherVector);
+                var outVector = f(inValueVector, inOtherVector);
+                vector.SetVector(i, ref outVector);
             }
             return vector;
         }
@@ -164,9 +169,11 @@ namespace NeuralNetworks
         public static LayerVector Apply(this LayerVector value, float x, Func<Vector<float>, float, Vector<float>> f)
         {
             var vector = new LayerVector(value.Length);
-            for (var i = 0; i < vector.Internal.Length; i++)
+            for (var i = 0; i < vector.Length; i += Vector<float>.Count)
             {
-                vector.Internal[i] = f(value.Internal[i], x);
+                value.GetVector(i, out var inVector);
+                var outVector = f(inVector, x);
+                vector.SetVector(i, ref outVector);
             }
             return vector;
         }
@@ -185,8 +192,15 @@ namespace NeuralNetworks
         {
             if (value.Length != other.Length)
                 throw new ArgumentException();
-            
-            return value.Internal.Select((t, i) => Vector.Dot(t, other.Internal[i])).Sum();
+
+            var dot = 0f;
+            for (var i = 0; i < value.Length; i += Vector<float>.Count)
+            {
+                value.GetVector(i, out var inValueVector);
+                other.GetVector(i, out var inOtherVector);
+                dot += Vector.Dot(inValueVector, inOtherVector);
+            }
+            return dot;
         }
 
         public static LayerVector Apply(this LayerVector value, Func<float, float> f)
